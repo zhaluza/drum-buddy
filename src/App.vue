@@ -322,7 +322,7 @@ const updateVolume = () => {
     <div class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-4xl font-bold text-blue-500 dark:text-blue-400">
-          Drum Sequencer
+          Drum Buddy
         </h1>
         <button
           @click="toggleDarkMode"
