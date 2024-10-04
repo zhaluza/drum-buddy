@@ -5,35 +5,28 @@ import kick from "./assets/kick.wav";
 import snare from "./assets/snare.wav";
 import hihat from "./assets/hihat.wav";
 
-// Define the drum types
 type DrumType = "kick" | "snare" | "hihat";
 
-// Create a 2D array to represent the sequencer grid
 const sequencerGrid = ref<boolean[][]>(
   Array(3)
     .fill(null)
     .map(() => Array(16).fill(false))
 );
 
-// Create refs for tempo and volume
 const tempo = ref(120);
 const volume = ref(-10);
 
-// Create a ref for the current playing state
 const isPlaying = ref(false);
 const isLoaded = ref(false);
 
-// Create Tone.js players for each drum sound
 const players: Record<DrumType, Tone.Player> = {
   kick: new Tone.Player(kick).toDestination(),
   snare: new Tone.Player(snare).toDestination(),
   hihat: new Tone.Player(hihat).toDestination(),
 };
 
-// Create a Tone.js sequence
 let sequence: Tone.Sequence<number>;
 
-// Add beat presets
 const beatPresets = {
   basic: [
     [
@@ -205,16 +198,13 @@ const beatPresets = {
   ],
 };
 
-// Add a ref for the current preset
 const currentPreset = ref<keyof typeof beatPresets>("basic");
 
-// Function to apply a beat preset
 const applyBeatPreset = (preset: keyof typeof beatPresets) => {
   sequencerGrid.value = JSON.parse(JSON.stringify(beatPresets[preset]));
   currentPreset.value = preset;
 };
 
-// Add a new function to reset the sequencer
 const resetSequencer = () => {
   sequencerGrid.value = Array(3)
     .fill(null)
@@ -222,16 +212,13 @@ const resetSequencer = () => {
   currentPreset.value = "basic" as const;
 };
 
-// Add this new ref for dark mode
 const isDarkMode = ref(false);
 
-// Add this new function to toggle dark mode
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
   document.documentElement.classList.toggle("dark", isDarkMode.value);
 };
 
-// Add this to the onMounted function
 onMounted(async () => {
   // Load audio files
   await Tone.loaded();
@@ -278,12 +265,11 @@ onUnmounted(() => {
   Object.values(players).forEach((player) => player.dispose());
 });
 
-// Function to toggle a cell in the sequencer grid
+// Toggle a cell in the sequencer grid
 const toggleCell = (row: number, col: number) => {
   sequencerGrid.value[row][col] = !sequencerGrid.value[row][col];
 };
 
-// Function to start/stop the sequence
 const togglePlay = async () => {
   if (!isLoaded.value) return;
 
@@ -299,12 +285,10 @@ const togglePlay = async () => {
   isPlaying.value = !isPlaying.value;
 };
 
-// Function to update tempo
 const updateTempo = () => {
   Tone.Transport.bpm.value = tempo.value;
 };
 
-// Function to update volume
 const updateVolume = () => {
   Tone.Destination.volume.value = volume.value;
 };
@@ -438,7 +422,3 @@ const updateVolume = () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Add any additional styles here */
-</style>
