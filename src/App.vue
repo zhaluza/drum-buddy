@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import * as Tone from "tone";
 import kick from "./assets/kick.wav";
 import snare from "./assets/snare.wav";
@@ -24,14 +24,14 @@ const isPlaying = ref(false);
 const isLoaded = ref(false);
 
 // Create Tone.js players for each drum sound
-const players = {
+const players: Record<DrumType, Tone.Player> = {
   kick: new Tone.Player(kick).toDestination(),
   snare: new Tone.Player(snare).toDestination(),
   hihat: new Tone.Player(hihat).toDestination(),
 };
 
 // Create a Tone.js sequence
-let sequence: Tone.Sequence<DrumType>;
+let sequence: Tone.Sequence<number>;
 
 // Add beat presets
 const beatPresets = {
@@ -219,7 +219,7 @@ const resetSequencer = () => {
   sequencerGrid.value = Array(3)
     .fill(null)
     .map(() => Array(16).fill(false));
-  currentPreset.value = null;
+  currentPreset.value = "basic" as const;
 };
 
 // Add this new ref for dark mode
@@ -244,9 +244,9 @@ onMounted(async () => {
   isLoaded.value = true;
 
   // Initialize the sequence
-  sequence = new Tone.Sequence<DrumType>(
+  sequence = new Tone.Sequence<number>(
     (time, step) => {
-      sequencerGrid.value.forEach((row, index) => {
+      sequencerGrid.value.forEach((row: boolean[], index: number) => {
         if (row[step]) {
           const drumType = ["kick", "snare", "hihat"][index] as DrumType;
           players[drumType].start(time);
@@ -254,7 +254,7 @@ onMounted(async () => {
       });
     },
     Array(16)
-      .fill(0)
+      .fill(null)
       .map((_, i) => i),
     "16n"
   );
