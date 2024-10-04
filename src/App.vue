@@ -315,22 +315,33 @@ const updateVolume = () => {
     :class="[
       'min-h-screen transition-colors duration-300',
       isDarkMode
-        ? 'dark bg-background-dark text-text-dark'
-        : 'bg-background-light text-text-light',
+        ? 'dark bg-gray-800 text-gray-100'
+        : 'bg-gray-100 text-gray-800',
     ]"
   >
     <div class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-6">
-        <h1
-          class="text-4xl font-bold text-primary-light dark:text-primary-dark"
-        >
+        <h1 class="text-4xl font-bold text-blue-500 dark:text-blue-400">
           Drum Sequencer
         </h1>
         <button
           @click="toggleDarkMode"
-          class="p-2 rounded-full bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark"
+          class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
         >
-          {{ isDarkMode ? "☀️" : "🌙" }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            />
+          </svg>
         </button>
       </div>
 
@@ -338,17 +349,17 @@ const updateVolume = () => {
         <button
           @click="togglePlay"
           :class="[
-            'px-6 py-2 rounded-lg text-lg font-semibold transition duration-300',
+            'px-6 py-2 rounded-lg text-lg font-semibold transition duration-300 text-white',
             isPlaying
-              ? 'bg-secondary-light dark:bg-secondary-dark'
-              : 'bg-primary-light dark:bg-primary-dark',
+              ? 'bg-indigo-500 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-500'
+              : 'bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500',
           ]"
         >
           {{ isPlaying ? "Stop" : "Play" }}
         </button>
         <button
           @click="resetSequencer"
-          class="bg-gray-400 dark:bg-gray-600 hover:bg-gray-500 dark:hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
+          class="bg-gray-400 dark:bg-gray-600 hover:bg-gray-500 dark:hover:bg-gray-500 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
         >
           Reset
         </button>
@@ -362,7 +373,7 @@ const updateVolume = () => {
           min="60"
           max="200"
           @input="updateTempo"
-          class="w-48 accent-primary-light dark:accent-primary-dark"
+          class="w-48 accent-blue-500 dark:accent-blue-400"
         />
       </div>
 
@@ -375,21 +386,21 @@ const updateVolume = () => {
           max="0"
           step="0.1"
           @input="updateVolume"
-          class="w-48 accent-primary-light dark:accent-primary-dark"
+          class="w-48 accent-blue-500 dark:accent-blue-400"
         />
       </div>
 
       <!-- Beat preset buttons -->
-      <div class="mb-6">
+      <div class="mb-6 flex flex-wrap gap-2">
         <button
           v-for="preset in Object.keys(beatPresets)"
           :key="preset"
           @click="applyBeatPreset(preset as keyof typeof beatPresets)"
           :class="[
-            'px-4 py-2 rounded-lg mr-2 text-white font-semibold transition duration-300',
+            'px-4 py-2 rounded-lg text-white font-semibold transition duration-300',
             preset === currentPreset
-              ? 'bg-secondary-light dark:bg-secondary-dark'
-              : 'bg-primary-light dark:bg-primary-dark hover:bg-primary-dark dark:hover:bg-primary-light',
+              ? 'bg-indigo-500 dark:bg-indigo-600'
+              : 'bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500',
           ]"
         >
           {{ preset.charAt(0).toUpperCase() + preset.slice(1) }} Beat
@@ -404,7 +415,7 @@ const updateVolume = () => {
           :key="rowIndex"
           class="flex mb-2"
         >
-          <div class="w-20 font-bold text-primary-light dark:text-primary-dark">
+          <div class="w-20 font-bold text-blue-500 dark:text-blue-400">
             {{ ["Kick", "Snare", "Hi-hat"][rowIndex] }}
           </div>
           <div
@@ -414,7 +425,7 @@ const updateVolume = () => {
             :class="[
               'w-8 h-8 border cursor-pointer transition duration-150',
               cell
-                ? 'bg-secondary-light dark:bg-secondary-dark'
+                ? 'bg-indigo-500 dark:bg-indigo-600'
                 : 'hover:bg-gray-200 dark:hover:bg-gray-600',
               'border-gray-300 dark:border-gray-500',
               (colIndex + 1) % 4 === 0
