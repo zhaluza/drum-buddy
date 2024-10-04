@@ -33,6 +33,183 @@ const players = {
 // Create a Tone.js sequence
 let sequence: Tone.Sequence<DrumType>;
 
+// Add beat presets
+const beatPresets = {
+  basic: [
+    [
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+    ],
+    [
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+    ],
+  ],
+  synthwave: [
+    [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+    ],
+  ],
+  funk: [
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+    ],
+    [
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+    ],
+  ],
+};
+
+// Function to apply a beat preset
+const applyBeatPreset = (preset: keyof typeof beatPresets) => {
+  sequencerGrid.value = JSON.parse(JSON.stringify(beatPresets[preset]));
+};
+
 onMounted(async () => {
   // Load audio files
   await Tone.loaded();
@@ -141,6 +318,18 @@ const updateVolume = () => {
       </label>
     </div>
 
+    <!-- Add beat preset buttons -->
+    <div class="mb-4">
+      <button
+        v-for="preset in Object.keys(beatPresets)"
+        :key="preset"
+        @click="applyBeatPreset(preset as keyof typeof beatPresets)"
+        class="bg-green-500 text-white px-4 py-2 rounded mr-2"
+      >
+        {{ preset.charAt(0).toUpperCase() + preset.slice(1) }} Beat
+      </button>
+    </div>
+
     <div class="sequencer-grid">
       <div
         v-for="(row, rowIndex) in sequencerGrid"
@@ -155,7 +344,10 @@ const updateVolume = () => {
           :key="colIndex"
           @click="toggleCell(rowIndex, colIndex)"
           class="w-8 h-8 border border-gray-300 cursor-pointer"
-          :class="{ 'bg-blue-500': cell }"
+          :class="{
+            'bg-blue-500': cell,
+            'border-r-2 border-r-gray-500': (colIndex + 1) % 4 === 0,
+          }"
         ></div>
       </div>
     </div>
