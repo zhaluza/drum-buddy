@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import * as Tone from "tone";
 import kick from "./assets/kick.wav";
 import snare from "./assets/snare.wav";
@@ -205,9 +205,13 @@ const beatPresets = {
   ],
 };
 
+// Add a ref for the current preset
+const currentPreset = ref<keyof typeof beatPresets>("basic");
+
 // Function to apply a beat preset
 const applyBeatPreset = (preset: keyof typeof beatPresets) => {
   sequencerGrid.value = JSON.parse(JSON.stringify(beatPresets[preset]));
+  currentPreset.value = preset;
 };
 
 onMounted(async () => {
@@ -236,6 +240,9 @@ onMounted(async () => {
       .map((_, i) => i),
     "16n"
   );
+
+  // Apply the basic beat preset on page load
+  applyBeatPreset("basic");
 });
 
 onUnmounted(() => {
@@ -277,66 +284,66 @@ const updateVolume = () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-4">Drum Sequencer</h1>
+  <div class="container mx-auto p-4 bg-gray-100">
+    <h1 class="text-4xl font-bold mb-6 text-indigo-700">Drum Sequencer</h1>
 
-    <div class="mb-4">
+    <div class="mb-6">
       <button
         @click="togglePlay"
-        class="bg-blue-500 text-white px-4 py-2 rounded"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
       >
         {{ isPlaying ? "Stop" : "Play" }}
       </button>
     </div>
 
-    <div class="mb-4">
-      <label class="block">
-        Tempo: {{ tempo }} BPM
-        <input
-          type="range"
-          v-model="tempo"
-          min="60"
-          max="200"
-          @input="updateTempo"
-          class="w-full"
-        />
-      </label>
+    <div class="mb-6 flex items-center">
+      <label class="block mr-4 w-24"> Tempo: {{ tempo }} </label>
+      <input
+        type="range"
+        v-model="tempo"
+        min="60"
+        max="200"
+        @input="updateTempo"
+        class="w-48"
+      />
     </div>
 
-    <div class="mb-4">
-      <label class="block">
-        Volume: {{ volume }} dB
-        <input
-          type="range"
-          v-model="volume"
-          min="-40"
-          max="0"
-          step="0.1"
-          @input="updateVolume"
-          class="w-full"
-        />
-      </label>
+    <div class="mb-6 flex items-center">
+      <label class="block mr-4 w-24"> Volume: {{ volume }} </label>
+      <input
+        type="range"
+        v-model="volume"
+        min="-40"
+        max="40"
+        step="0.1"
+        @input="updateVolume"
+        class="w-48"
+      />
     </div>
 
     <!-- Add beat preset buttons -->
-    <div class="mb-4">
+    <div class="mb-6">
       <button
         v-for="preset in Object.keys(beatPresets)"
         :key="preset"
         @click="applyBeatPreset(preset as keyof typeof beatPresets)"
-        class="bg-green-500 text-white px-4 py-2 rounded mr-2"
+        class="px-4 py-2 rounded-lg mr-2 text-white font-semibold transition duration-300"
+        :class="{
+          'bg-green-500 hover:bg-green-600': preset !== currentPreset,
+          'bg-green-700': preset === currentPreset,
+        }"
       >
         {{ preset.charAt(0).toUpperCase() + preset.slice(1) }} Beat
       </button>
     </div>
 
-    <div class="sequencer-grid">
+    <div class="sequencer-grid bg-white p-4 rounded-lg shadow-md">
       <div
         v-for="(row, rowIndex) in sequencerGrid"
         :key="rowIndex"
         class="flex mb-2"
       >
-        <div class="w-20 font-bold">
+        <div class="w-20 font-bold text-indigo-700">
           {{ ["Kick", "Snare", "Hi-hat"][rowIndex] }}
         </div>
         <div
