@@ -222,6 +222,16 @@ const resetSequencer = () => {
   currentPreset.value = null;
 };
 
+// Add this new ref for dark mode
+const isDarkMode = ref(false);
+
+// Add this new function to toggle dark mode
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+  document.documentElement.classList.toggle("dark", isDarkMode.value);
+};
+
+// Add this to the onMounted function
 onMounted(async () => {
   // Load audio files
   await Tone.loaded();
@@ -251,6 +261,15 @@ onMounted(async () => {
 
   // Apply the basic beat preset on page load
   applyBeatPreset("basic");
+
+  // Check system preference for dark mode
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    isDarkMode.value = true;
+    document.documentElement.classList.add("dark");
+  }
 });
 
 onUnmounted(() => {
@@ -292,87 +311,118 @@ const updateVolume = () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4 bg-blue-100">
-    <h1 class="text-4xl font-bold mb-6 text-blue-800">Drum Sequencer</h1>
+  <div
+    :class="[
+      'min-h-screen transition-colors duration-300',
+      isDarkMode
+        ? 'dark bg-background-dark text-text-dark'
+        : 'bg-background-light text-text-light',
+    ]"
+  >
+    <div class="container mx-auto p-4">
+      <div class="flex justify-between items-center mb-6">
+        <h1
+          class="text-4xl font-bold text-primary-light dark:text-primary-dark"
+        >
+          Drum Sequencer
+        </h1>
+        <button
+          @click="toggleDarkMode"
+          class="p-2 rounded-full bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark"
+        >
+          {{ isDarkMode ? "☀️" : "🌙" }}
+        </button>
+      </div>
 
-    <div class="mb-6 flex space-x-4">
-      <button
-        @click="togglePlay"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
-      >
-        {{ isPlaying ? "Stop" : "Play" }}
-      </button>
-      <button
-        @click="resetSequencer"
-        class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
-      >
-        Reset
-      </button>
-    </div>
+      <div class="mb-6 flex space-x-4">
+        <button
+          @click="togglePlay"
+          :class="[
+            'px-6 py-2 rounded-lg text-lg font-semibold transition duration-300',
+            isPlaying
+              ? 'bg-secondary-light dark:bg-secondary-dark'
+              : 'bg-primary-light dark:bg-primary-dark',
+          ]"
+        >
+          {{ isPlaying ? "Stop" : "Play" }}
+        </button>
+        <button
+          @click="resetSequencer"
+          class="bg-gray-400 dark:bg-gray-600 hover:bg-gray-500 dark:hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-lg font-semibold transition duration-300"
+        >
+          Reset
+        </button>
+      </div>
 
-    <div class="mb-6 flex items-center">
-      <label class="block mr-4 w-24 text-blue-700"> Tempo: {{ tempo }} </label>
-      <input
-        type="range"
-        v-model="tempo"
-        min="60"
-        max="200"
-        @input="updateTempo"
-        class="w-48"
-      />
-    </div>
+      <div class="mb-6 flex items-center">
+        <label class="block mr-4 w-24"> Tempo: {{ tempo }} </label>
+        <input
+          type="range"
+          v-model="tempo"
+          min="60"
+          max="200"
+          @input="updateTempo"
+          class="w-48 accent-primary-light dark:accent-primary-dark"
+        />
+      </div>
 
-    <div class="mb-6 flex items-center">
-      <label class="block mr-4 w-24 text-blue-700">
-        Volume: {{ volume }}
-      </label>
-      <input
-        type="range"
-        v-model="volume"
-        min="-40"
-        max="0"
-        step="0.1"
-        @input="updateVolume"
-        class="w-48"
-      />
-    </div>
+      <div class="mb-6 flex items-center">
+        <label class="block mr-4 w-24"> Volume: {{ volume }} </label>
+        <input
+          type="range"
+          v-model="volume"
+          min="-40"
+          max="0"
+          step="0.1"
+          @input="updateVolume"
+          class="w-48 accent-primary-light dark:accent-primary-dark"
+        />
+      </div>
 
-    <!-- Beat preset buttons -->
-    <div class="mb-6">
-      <button
-        v-for="preset in Object.keys(beatPresets)"
-        :key="preset"
-        @click="applyBeatPreset(preset as keyof typeof beatPresets)"
-        class="px-4 py-2 rounded-lg mr-2 text-white font-semibold transition duration-300"
-        :class="{
-          'bg-blue-500 hover:bg-blue-600': preset !== currentPreset,
-          'bg-blue-700': preset === currentPreset,
-        }"
-      >
-        {{ preset.charAt(0).toUpperCase() + preset.slice(1) }} Beat
-      </button>
-    </div>
+      <!-- Beat preset buttons -->
+      <div class="mb-6">
+        <button
+          v-for="preset in Object.keys(beatPresets)"
+          :key="preset"
+          @click="applyBeatPreset(preset as keyof typeof beatPresets)"
+          :class="[
+            'px-4 py-2 rounded-lg mr-2 text-white font-semibold transition duration-300',
+            preset === currentPreset
+              ? 'bg-secondary-light dark:bg-secondary-dark'
+              : 'bg-primary-light dark:bg-primary-dark hover:bg-primary-dark dark:hover:bg-primary-light',
+          ]"
+        >
+          {{ preset.charAt(0).toUpperCase() + preset.slice(1) }} Beat
+        </button>
+      </div>
 
-    <div class="sequencer-grid bg-white p-4 rounded-lg shadow-md">
       <div
-        v-for="(row, rowIndex) in sequencerGrid"
-        :key="rowIndex"
-        class="flex mb-2"
+        class="sequencer-grid bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md"
       >
-        <div class="w-20 font-bold text-blue-700">
-          {{ ["Kick", "Snare", "Hi-hat"][rowIndex] }}
-        </div>
         <div
-          v-for="(cell, colIndex) in row"
-          :key="colIndex"
-          @click="toggleCell(rowIndex, colIndex)"
-          class="w-8 h-8 border border-indigo-300 cursor-pointer transition duration-150"
-          :class="{
-            'bg-indigo-500': cell,
-            'hover:bg-indigo-200': !cell,
-            'border-r-2 border-r-indigo-400': (colIndex + 1) % 4 === 0,
-          }"
-        ></div>
+          v-for="(row, rowIndex) in sequencerGrid"
+          :key="rowIndex"
+          class="flex mb-2"
+        >
+          <div class="w-20 font-bold text-primary-light dark:text-primary-dark">
+            {{ ["Kick", "Snare", "Hi-hat"][rowIndex] }}
+          </div>
+          <div
+            v-for="(cell, colIndex) in row"
+            :key="colIndex"
+            @click="toggleCell(rowIndex, colIndex)"
+            :class="[
+              'w-8 h-8 border cursor-pointer transition duration-150',
+              cell
+                ? 'bg-secondary-light dark:bg-secondary-dark'
+                : 'hover:bg-gray-200 dark:hover:bg-gray-600',
+              'border-gray-300 dark:border-gray-500',
+              (colIndex + 1) % 4 === 0
+                ? 'border-r-2 border-r-gray-400 dark:border-r-gray-400'
+                : '',
+            ]"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
